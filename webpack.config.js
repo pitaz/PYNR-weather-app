@@ -23,6 +23,16 @@ const config = {
         use: "babel-loader",
         exclude: /node_modules/,
       },
+      {
+        test: /\.(s(a|c)ss)$/,
+        use: ["style-loader", "css-loader", "sass-loader"],
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|svg|jpg|png)$/,
+        use: {
+          loader: "url-loader",
+        },
+      },
     ],
   },
   plugins: [
@@ -30,6 +40,7 @@ const config = {
       template: "./src/index.html",
       filename: "index.html",
       inject: "body",
+      title: "Payoneer Test",
     }),
   ],
 };
@@ -45,8 +56,7 @@ if (isProd) {
     open: true,
     hot: true,
     compress: true,
-    // stats: "errors-only",
-    // overlay: true,
+    allowedHosts: 'localhost:9000'
   };
 }
 
