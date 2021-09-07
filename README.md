@@ -3,7 +3,6 @@
 # Table of Contents
 
 - [Technology Stack](#technology-stack)
-- [Installation](#installation)
 - [Testing](#testing)
 
 ## Technology Stack
