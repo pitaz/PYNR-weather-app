@@ -26,15 +26,11 @@ const fetchWeatherFailure = (error: Error) => ({
   error,
 });
 
-export const fetchWeather = () => async (dispatch) => {
+export const fetchWeather = (unit) => async (dispatch) => {
   try {
     dispatch(fetchWeatherRequest());
     const request = await https.get(
-      `/forecast?q=Munich,de&APPID=a640222ebfa06f41d201d0518fff673a&cnt=40`,
-      {
-        headers: {'Access-Control-Allow-Origin': 'http://localhost:9000'},
-
-      }
+      `/forecast?q=Munich,de&APPID=a640222ebfa06f41d201d0518fff673a&cnt=40`
     );
     return dispatch(fetchWeatherSuccess(request));
   } catch (error) {

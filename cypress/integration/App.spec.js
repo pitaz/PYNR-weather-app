@@ -3,6 +3,7 @@ describe("Weather app", () => {
     cy.visit("http://localhost:9000/");
   });
   it("loads app", () => {
-    cy.contains("Welcome to payoneer test!");
+    cy.get('#unit-celsius').contains('Celsius')
+    cy.get('#unit-fahrenheit').contains('Fahrenheit')
   });
 });

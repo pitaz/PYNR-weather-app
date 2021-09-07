@@ -3,12 +3,13 @@
  */
 
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { shallow } from 'enzyme';
 import App from './App';
 
 
-test("App contains correct text", () => {
-  render(<App />);
-  const text = screen.getByText("Welcome to payoneer test!");
-  expect(text).toBeInTheDocument();
+describe("App", () => {
+  const wrapper = shallow(<App />);
+ it('should match snapshot', () => {
+    expect(wrapper).toMatchSnapshot();
+  });
 });

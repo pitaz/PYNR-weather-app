@@ -1,16 +1,14 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Container,
   CssBaseline,
   Grid,
   RadioGroup,
-  Radio
+  Radio,
 } from "@material-ui/core";
 import { Bar } from "react-chartjs-2";
-import ArrowBackIosRounded from "@material-ui/icons/ArrowBackIosRounded";
-import ArrowForwardIosRounded from "@material-ui/icons/ArrowForwardIosRounded";
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 import CustomButton from "../../components/Button";
 import "./styles.scss";
 import WeatherCard from "../../components/WeatherCard";
@@ -18,33 +16,93 @@ import { data, options } from "./data";
 import { CityWeatherProps, Event } from "./interface";
 import { useDispatch } from "react-redux";
 import { fetchWeather } from "../../redux/actions/weather";
-import wdata from '../../response.json'
+import wdata from "../../response.json";
 import { groupBy } from "../../utils/groupBy";
+import dayjs from "dayjs";
+import { checkDevice } from "../../utils/checkMobile";
+import ScreenLoader from "../../components/ScreenLoader";
+import { useCallback } from "react";
+import WeatherGrid from "./WeatherGrid";
 
-
-
-
+/**
+ * This component returns the Weather card and bar chart
+ * @returns {JSX}
+ */
 const CityWeather: FC<CityWeatherProps> = () => {
-  const [value, setValue] = React.useState<Event>();
-  const dispatch = useDispatch();
+  const classes = useStyles();
+  const [value, setValue] = useState<Event>("metric");
+  const [list, setList] = useState<any>();
+  const [perPage, setPerpage] = useState<any>(3);
+  const [page, setPage] = useState<any>(0);
+  const [pages, setPages] = useState<any>(0);
+  const [temp, setTemp] = useState<any>();
+  const [time, setTime] = useState<any>();
+  const [error, setError] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
+  const isMobile = checkDevice();
 
+  /**
+   * Handles radio event
+   * @param event event
+   */
   const handleRadioChange = (event: any) => {
     setValue(event.target.value);
   };
-  const classes = useStyles();
-  const dateT = new Date('2021-08-27 03:00:00');
-const date1 = dateT.getDate();
 
+  useEffect(() => {
+    if (isMobile) {
+      setPerpage(1);
+    }
+  }, [isMobile]);
 
-  console.log(wdata)
-  const res = groupBy(wdata?.list, "dt_txt");
-console.log("group by:", Object.entries(res));
-  // useEffect(() => {
-  //   (async () => {
-  //     const res = await dispatch(fetchWeather());
-  //     console.log('res :>> ', res);
-  //   })()
-  // }, []);
+  const fetch = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = groupBy(wdata?.list, "dt_txt");
+      const reslist = Object.entries(res);
+      setList(reslist);
+      setPages(Math.ceil(reslist.length / perPage));
+      setLoading(false);
+    } catch (error) {
+      setError(error)
+    }
+  }, [perPage]);
+
+  useEffect(() => {
+    fetch();
+  }, [perPage]);
+
+  let items = list?.slice(page * perPage, (page + 1) * perPage);
+  const chartData = {
+    labels: time,
+    datasets: [
+      {
+        label: "Temp",
+        data: temp,
+        backgroundColor: "rgb(255, 99, 132)",
+      },
+    ],
+  };
+
+  if (loading) {
+    return <ScreenLoader />;
+  }
+
+  if (error) {
+    return  <h1 className="page-title">An eror occurred</h1>;
+  }
+  const handlePrev = () => {
+    if (page > 0) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNext = () => {
+    const actualPage = page + 1;
+    if (actualPage < pages) {
+      setPage(page + 1);
+    }
+  };
   return (
     <React.Fragment>
       <CssBaseline />
@@ -58,43 +116,39 @@ console.log("group by:", Object.entries(res));
             spacing={1}
           >
             <RadioGroup
-              aria-label="quiz"
-              name="quiz"
+              aria-label="temp"
+              name="temp"
               className={classes.radioGroup}
               value={value}
               onChange={handleRadioChange}
             >
               <FormControlLabel
-                value="celsius"
+                id="unit-celsius"
+                value="metric"
                 control={<Radio />}
                 label="Celsius"
               />
               <FormControlLabel
-                value="fahrenheit"
+                id="unit-fahrenheit"
+                value="imperial"
                 control={<Radio />}
                 label="Fahrenheit"
               />
             </RadioGroup>
-          <CustomButton title="refresh" />
+            <CustomButton title="refresh" onClick={fetch} />
           </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="center"
-            spacing={2}
-          >
-            <ArrowBackIosRounded />
-            {Object.entries(res).map((value) => (
-              <Grid key={value} item>
-                <WeatherCard data={value} />
-              </Grid>
-            ))}
-            <ArrowForwardIosRounded />
-          </Grid>
-        </Grid>
-        <Bar data={data} options={options} height={120} />
+        <WeatherGrid
+          page={page}
+          pages={pages}
+          items={items}
+          value={value}
+          handlePrev={handlePrev}
+          handleNext={handleNext}
+          setTemp={setTemp}
+          setTime={setTime}
+        />
+        <Bar data={chartData} options={options} height={120} />
       </Container>
     </React.Fragment>
   );
@@ -112,8 +166,8 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 14,
   },
   radioGroup: {
-    flexDirection: 'row'
-  }
+    flexDirection: "row",
+  },
 }));
 
 export default CityWeather;

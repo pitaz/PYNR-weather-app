@@ -9,14 +9,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CustomButton: FC<ButtonProps> = ({title}) => {
+const CustomButton: FC<ButtonProps> = ({title, onClick}) => {
   const classes = useStyles();
   return (
     <Button
       variant="contained"
       color="secondary"
       className={classes.button}
-      // startIcon={<DeleteIcon />}
+      onClick={onClick}
     >
       {title}
     </Button>

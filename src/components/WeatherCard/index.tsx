@@ -1,43 +1,72 @@
-import { Card, CardContent, makeStyles, Typography } from "@material-ui/core";
 import React, { FC } from "react";
+import { Card, CardContent, makeStyles, Typography } from "@material-ui/core";
+import dayjs from "dayjs";
+import { Items, WeatherCardProps } from "./interfaces";
+import { WeatherData } from "./types";
 
-export interface WeatherCardProps {
-  data: []
-}
-
-const WeatherCard: FC<WeatherCardProps> = ({data}) => {
+/**
+ * This component returns the weather card view
+ * 
+ * @param data
+ * @param unit
+ * @param setTime
+ * @param setTemp 
+ * @returns {JSX}
+ */
+const WeatherCard: FC<WeatherCardProps> = ({
+  data,
+  unit,
+  setTime,
+  setTemp,
+}) => {
   const classes = useStyles();
-  console.log('data :>> ', data[1]);
+  const weatherData: WeatherData = data[1];
+  const weatherItem: Items = data[1][0];
+
+  /**
+   * handles card select
+   */
+  const handleSelect = () => {
+    const temp = weatherData?.map((item: Items) => item?.main?.temp);
+    const time = weatherData?.map((item: Items) =>
+      dayjs(item?.dt_txt).format("hh:MM A")
+    );
+    setTemp(temp);
+    setTime(time);
+  };
   return (
-    <Card className={classes.card}>
+    <Card className={classes.card} onClick={handleSelect}>
       <CardContent>
         <Typography
           className={classes.title}
           color="textSecondary"
           gutterBottom
         >
-         Temperature
+          Temperature
         </Typography>
         <Typography
           className={classes.temperature}
           color="textSecondary"
           gutterBottom
         >
-         5 C
+          {weatherItem?.main?.temp} {unit === 'metric' ? 'C' : 'F'}
         </Typography>
         <Typography
-          className={classes.date}
+          className={classes.title}
           color="textSecondary"
           gutterBottom
         >
-         15 Sept, 2021
+          {weatherItem?.weather[0]?.main}
+        </Typography>
+        <Typography className={classes.date} color="textSecondary" gutterBottom>
+          {dayjs(weatherItem?.dt_txt).format("DD MMM YYYY")}
         </Typography>
       </CardContent>
     </Card>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   card: {
     height: 240,
     width: 204,
@@ -49,11 +78,11 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 14,
   },
   temperature: {
-    fontSize: 64,
+    fontSize: 34,
   },
   date: {
     fontSize: 20,
-  }
+  },
 }));
 
 export default WeatherCard;
