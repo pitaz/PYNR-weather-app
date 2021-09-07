@@ -7,11 +7,6 @@ import {
 const weatherInitialState = {
   data: [],
   isLoading: false,
-  imageProgress: {
-    loadedBytes: 0,
-    totalBytes: 0,
-  },
-  image: {},
 };
 
 /**
@@ -32,7 +27,7 @@ export const reducer = (state = weatherInitialState, action) => {
     case GET_WEATHER_SUCCESS:
       return {
         ...state,
-        data: [...action.centers],
+        data: action.payload,
         isLoading: false,
       };
 

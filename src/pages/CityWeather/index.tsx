@@ -11,14 +11,11 @@ import { Bar } from "react-chartjs-2";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import CustomButton from "../../components/Button";
 import "./styles.scss";
-import WeatherCard from "../../components/WeatherCard";
-import { data, options } from "./data";
-import { CityWeatherProps, Event } from "./interface";
+import { options } from "./data";
+import { CityWeatherProps } from "./interface";
 import { useDispatch } from "react-redux";
 import { fetchWeather } from "../../redux/actions/weather";
-import wdata from "../../response.json";
 import { groupBy } from "../../utils/groupBy";
-import dayjs from "dayjs";
 import { checkDevice } from "../../utils/checkMobile";
 import ScreenLoader from "../../components/ScreenLoader";
 import { useCallback } from "react";
@@ -30,7 +27,7 @@ import WeatherGrid from "./WeatherGrid";
  */
 const CityWeather: FC<CityWeatherProps> = () => {
   const classes = useStyles();
-  const [value, setValue] = useState<Event>("metric");
+  const [value, setValue] = useState<any>("metric");
   const [list, setList] = useState<any>();
   const [perPage, setPerpage] = useState<any>(3);
   const [page, setPage] = useState<any>(0);
@@ -40,6 +37,7 @@ const CityWeather: FC<CityWeatherProps> = () => {
   const [error, setError] = useState<any>();
   const [loading, setLoading] = useState<boolean>(false);
   const isMobile = checkDevice();
+  const dispatch = useDispatch<any>();
 
   /**
    * Handles radio event
@@ -58,19 +56,21 @@ const CityWeather: FC<CityWeatherProps> = () => {
   const fetch = useCallback(async () => {
     try {
       setLoading(true);
-      const res = groupBy(wdata?.list, "dt_txt");
-      const reslist = Object.entries(res);
+      const res = await dispatch(fetchWeather(value));
+      const groupData = groupBy(res?.payload?.data?.list, "dt_txt");
+      const reslist = Object.entries(groupData);
       setList(reslist);
-      setPages(Math.ceil(reslist.length / perPage));
+      setPages(Math.ceil(reslist?.length / perPage));
       setLoading(false);
     } catch (error) {
-      setError(error)
+      setError(error);
+      setLoading(false);
     }
-  }, [perPage]);
+  }, [perPage, value]);
 
   useEffect(() => {
     fetch();
-  }, [perPage]);
+  }, [value, perPage]);
 
   let items = list?.slice(page * perPage, (page + 1) * perPage);
   const chartData = {
