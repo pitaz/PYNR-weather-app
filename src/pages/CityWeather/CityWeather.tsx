@@ -29,9 +29,9 @@ const CityWeather: FC<CityWeatherProps> = () => {
   const classes = useStyles();
   const [value, setValue] = useState<any>("metric");
   const [list, setList] = useState<any>();
-  const [perPage, setPerpage] = useState<any>(3);
-  const [page, setPage] = useState<any>(0);
-  const [pages, setPages] = useState<any>(0);
+  const [perPage, setPerpage] = useState<number>(3);
+  const [page, setPage] = useState<number>(0);
+  const [pages, setPages] = useState<number>(0);
   const [temp, setTemp] = useState<any>();
   const [time, setTime] = useState<any>();
   const [error, setError] = useState<any>();
@@ -72,7 +72,7 @@ const CityWeather: FC<CityWeatherProps> = () => {
     fetch();
   }, [value, perPage]);
 
-  let items = list?.slice(page * perPage, (page + 1) * perPage);
+  const items = list?.slice(page * perPage, (page + 1) * perPage);
   const chartData = {
     labels: time,
     datasets: [

@@ -1,9 +1,20 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-undef */
 const { resolve } = require("path");
+const dotEnv = require('dotenv');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserWebpackPlugin = require("terser-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const envs = dotEnv.config().parsed;
+const stringifiedEnvs = {};
+Object.keys(envs).forEach((envKey) => {
+  stringifiedEnvs[envKey] = JSON.stringify(envs[envKey]);
+});
+
+const definePlugin = new webpack.DefinePlugin({
+  'process.env': stringifiedEnvs
+});
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -46,6 +57,7 @@ const config = {
       title: "Payoneer Test",
     }),
     new MiniCssExtractPlugin(),
+    definePlugin
   ],
 };
 

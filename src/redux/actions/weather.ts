@@ -27,7 +27,7 @@ export const fetchWeather = (unit: string) => async (dispatch: any) => {
   try {
     dispatch(fetchWeatherRequest());
     const request = await https.get(
-      `/forecast?q=Munich,de&units=${unit}&APPID=a640222ebfa06f41d201d0518fff673a&cnt=40`
+      `/forecast?q=Munich,de&units=${unit}&APPID=${process.env.APPID}&cnt=40`
     );
     return dispatch(fetchWeatherSuccess(request));
   } catch (error) {
